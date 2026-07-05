@@ -150,22 +150,11 @@ def render_footer():
         """
         <div class="footer">
             <hr>
-            <h4>🛡️ Insurance Policy RAG Assistant</h4>
-
             <p>
-                Enterprise Retrieval-Augmented Generation (RAG) System for
-                Insurance Policy Analysis
+                Developed by <strong>Hemapriya P</strong> © 2026
             </p>
-
-            <p>
-                Built with
-                Streamlit • LangChain • FAISS • OpenAI • Groq • NVIDIA NIM
-            </p>
-
-            <p class="footer-small">
-                Developed by <strong>Hemapriya</strong> © 2026
-            </p>
+            </hr>
         </div>
         """,
-        unsafe_allow_html=True,
-    )
+        unsafe_allow_html=True,              
+    )  
