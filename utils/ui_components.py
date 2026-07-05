@@ -146,16 +146,24 @@ def render_suggested_questions(suggestions: list, key_prefix: str = "sugg") -> s
                 selected = question
     return selected
 def render_footer():
-    """Application footer."""
     st.markdown(
         """
         <div class="footer">
             <hr>
+            <h4>🛡️ Insurance Policy RAG Assistant</h4>
+
             <p>
-                🛡️ <strong>Insurance Policy RAG Assistant</strong>
+                Enterprise Retrieval-Augmented Generation (RAG) System for
+                Insurance Policy Analysis
             </p>
+
+            <p>
+                Built with
+                Streamlit • LangChain • FAISS • OpenAI • Groq • NVIDIA NIM
+            </p>
+
             <p class="footer-small">
-                © 2026 Hemapriya • Enterprise AI Project
+                Developed by <strong>Hemapriya</strong> © 2026
             </p>
         </div>
         """,

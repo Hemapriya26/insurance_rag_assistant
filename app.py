@@ -636,4 +636,7 @@ with tab_settings:
         })
     log_path = os.path.join(os.path.dirname(__file__), "logs", "app.log")
     st.caption(f"Logs are written to: {log_path}")
-
+# -------------------------------------------------
+# Footer
+# -------------------------------------------------
+render_footer()
