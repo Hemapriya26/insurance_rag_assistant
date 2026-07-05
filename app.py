@@ -37,7 +37,7 @@ from utils.export_utils import export_as_markdown, export_as_pdf, export_as_json
 from utils.suggestions import generate_suggestions
 from utils import conversation_store
 from utils.ui_components import (
-    render_chat_message, render_typing_indicator, render_answer_meta,
+    render_chat_message, render_typing_indicator, render_answer_meta,render_footer, render_sources_expander,
     render_header_banner, render_timestamp,
     render_message_actions, render_suggested_questions,
 )

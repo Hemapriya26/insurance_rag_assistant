@@ -145,3 +145,20 @@ def render_suggested_questions(suggestions: list, key_prefix: str = "sugg") -> s
             if st.button(question, key=f"{key_prefix}_{question[:24]}", use_container_width=True):
                 selected = question
     return selected
+def render_footer():
+    """Application footer."""
+    st.markdown(
+        """
+        <div class="footer">
+            <hr>
+            <p>
+                🛡️ <strong>Insurance Policy RAG Assistant</strong> |
+                Built with ❤️ using Streamlit, LangChain, FAISS & OpenAI
+            </p>
+            <p class="footer-small">
+                © 2026 Hemapriya • Enterprise AI Project
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
