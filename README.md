@@ -396,7 +396,7 @@ SOFTWARE.
 
 ---
 
-##Acknowledgements
+## Acknowledgements
 
 This project builds on the excellent work of the open-source and AI provider ecosystem:
 
