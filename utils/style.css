@@ -1,0 +1,113 @@
+/* ===== Base variables (overridden per theme) ===== */
+:root {
+    --glass-bg: rgba(255, 255, 255, 0.55);
+    --glass-border: rgba(255, 255, 255, 0.35);
+    --text-color: #1a1a2e;
+    --bg-gradient: linear-gradient(135deg, #e0f2fe 0%, #f0f4ff 50%, #fdf2f8 100%);
+}
+
+.dark-theme {
+    --glass-bg: rgba(30, 30, 46, 0.55);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --text-color: #f1f1f6;
+    --bg-gradient: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+}
+
+.stApp {
+    background: var(--bg-gradient);
+    color: var(--text-color);
+}
+
+/* ===== Gradient header banner ===== */
+.header-banner {
+    padding: 28px 32px;
+    border-radius: 18px;
+    margin-bottom: 24px;
+    background: linear-gradient(120deg, #6366f1, #8b5cf6, #ec4899);
+    background-size: 200% 200%;
+    animation: gradientShift 8s ease infinite;
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.25);
+}
+.header-banner h1 { color: #fff; margin: 0; font-size: 1.7rem; }
+.header-banner p { color: rgba(255,255,255,0.9); margin: 4px 0 0 0; font-size: 0.95rem; }
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ===== Glassmorphism cards ===== */
+.glass-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    animation: fadeIn 0.4s ease-in-out;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.glass-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.14);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Confidence badges ===== */
+.badge { padding: 3px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 600; }
+.badge-high { background: #d1fae5; color: #065f46; }
+.badge-medium { background: #fef3c7; color: #92400e; }
+.badge-low { background: #fee2e2; color: #991b1b; }
+
+/* ===== Sidebar polish ===== */
+section[data-testid="stSidebar"] {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+}
+
+/* ===== Phase 2: Chat bubble differentiation ===== */
+.chat-bubble-user {
+    border-left: 3px solid #6366f1;
+}
+.chat-bubble-assistant {
+    border-left: 3px solid #ec4899;
+}
+
+/* ===== Phase 2: Typing indicator ===== */
+.typing-indicator {
+    display: flex;
+    gap: 5px;
+    padding: 10px 4px;
+}
+.typing-indicator span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #8b5cf6;
+    animation: typingBounce 1.2s infinite ease-in-out;
+}
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30% { transform: translateY(-6px); opacity: 1; }
+}
+
+/* ===== Phase 2: Meta row (confidence / model / latency) ===== */
+.meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 6px 0 10px 0;
+}
+.badge-model { background: #e0e7ff; color: #3730a3; }
+.badge-time { background: #f1f5f9; color: #334155; }
+
