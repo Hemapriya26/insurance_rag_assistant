@@ -152,8 +152,7 @@ def render_footer():
         <div class="footer">
             <hr>
             <p>
-                🛡️ <strong>Insurance Policy RAG Assistant</strong> |
-                Built with ❤️ using Streamlit, LangChain, FAISS & OpenAI
+                🛡️ <strong>Insurance Policy RAG Assistant</strong>
             </p>
             <p class="footer-small">
                 © 2026 Hemapriya • Enterprise AI Project
