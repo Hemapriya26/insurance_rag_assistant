@@ -24,7 +24,7 @@ from dotenv import load_dotenv
 
 from utils.loader import save_uploaded_files, load_pdfs
 from utils.chunker import chunk_documents
-from utils.vectorstore import build_vectorstore, load_vectorstore
+from utils.vectorstore import build_vectorstore, load_vectorstore, IncompatibleIndexError, INDEX_DIR
 from utils.rag_chain import answer_question, prepare_retrieval, finalize_answer
 from utils.hybrid_retrieval import build_bm25_index, save_chunks_to_disk, load_chunks_from_disk
 from utils.reranker import reranker_mode
@@ -60,11 +60,31 @@ if "vectorstore" not in st.session_state:
     try:
         st.session_state.vectorstore = load_vectorstore()
     except EmbeddingModelUnavailableError as exc:
-        # Don't crash the whole app on startup if a previously-built index
-        # can't be loaded (e.g. first-time model download failed) — fall
-        # back to "no KB loaded" and let the user rebuild from the sidebar.
+        # Don't crash the whole app on startup if the embedding model itself
+        # can't load (e.g. first-time model download failed) — fall back to
+        # "no KB loaded" and let the user retry from the sidebar.
         st.session_state.vectorstore = None
         st.session_state._embedding_load_error = str(exc)
+    except IncompatibleIndexError as exc:
+        # A previously persisted index (often built with a different/older
+        # embedding model) can't be read. Auto-clear the stale index files so
+        # the app doesn't keep failing on every new session/restart — the
+        # user just needs to re-upload PDFs and click "Build KB" once.
+        import shutil
+        if os.path.exists(INDEX_DIR):
+            shutil.rmtree(INDEX_DIR, ignore_errors=True)
+        st.session_state.vectorstore = None
+        st.session_state._index_incompatible_warning = str(exc)
+    except Exception as exc:  # noqa: BLE001 — last-resort safety net so a
+        # startup KB load can never crash the whole app; log it and continue
+        # with no KB loaded rather than taking the site down.
+        from utils.logger import get_logger as _get_logger
+        _get_logger(__name__).error("Unexpected error loading KB at startup: %s", exc, exc_info=True)
+        st.session_state.vectorstore = None
+        st.session_state._embedding_load_error = (
+            "Could not load the existing knowledge base. Please click "
+            "'🗑️ Clear KB' in the sidebar, then re-upload your PDFs and rebuild it."
+        )
 if "theme" not in st.session_state:
     st.session_state.theme = "light"
 if "query_log" not in st.session_state:
@@ -124,6 +144,11 @@ render_header_banner(
 
 if st.session_state.get("_embedding_load_error"):
     st.error(st.session_state._embedding_load_error)
+if st.session_state.get("_index_incompatible_warning"):
+    st.warning(
+        "⚠️ " + st.session_state._index_incompatible_warning +
+        "\n\n_(The incompatible index files have already been cleared automatically.)_"
+    )
 
 # ---------------------------------------------------------------------------
 # Background streaming worker — MUST NOT touch st.session_state or st.* calls.
