@@ -77,14 +77,12 @@ def load_vectorstore(persist_dir: str = INDEX_DIR) -> Optional[FAISS]:
             "different embedding model or corrupted (%s).", persist_dir, exc,
         )
         raise IncompatibleIndexError(
-            "The existing knowledge base index could not be loaded. This "
-            "usually happens when it was built with a different embedding "
-            "model than the one currently configured, or the index files are "
-            "corrupted.\n\n"
-            "Click '🗑️ Clear KB' in the sidebar, then re-upload your PDFs and "
-            "click '⚙️ Build KB' to rebuild it."
-        ) from exc
-
+            "Unable to load existing FAISS index.\n\n"
+            "This is usually because the index was built with a different "
+            "embedding model (e.g. an older OpenAI-based index) or because "
+            "the index files are truncated/corrupted. The fix is to clear the "
+            "knowledge base and rebuild it."
+        )
 
 def similarity_search_with_score(vectorstore: FAISS, query: str, k: int = 4):
     """Return (Document, score) tuples for the top-k most similar chunks."""

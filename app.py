@@ -311,6 +311,12 @@ with st.sidebar:
                     time.sleep(0.3)
                     progress.empty()
                     st.success(f"Knowledge base built from {len(chunks)} chunks across {len(paths)} document(s).")
+                    # A fresh, successful build supersedes any earlier
+                    # startup warning about a stale/incompatible index — clear
+                    # those banners so they don't linger for the rest of the
+                    # session after the problem is already resolved.
+                    st.session_state.pop("_index_incompatible_warning", None)
+                    st.session_state.pop("_embedding_load_error", None)
                 except EmbeddingModelUnavailableError as exc:
                     # Clean, specific message for local embedding-model load
                     # failures (e.g. no internet for first-time download) —
@@ -334,6 +340,8 @@ with st.sidebar:
         st.session_state.feedback = {}
         memory.reset()
         conversation_store.save_messages(st.session_state.conv_id, [])
+        st.session_state.pop("_index_incompatible_warning", None)
+        st.session_state.pop("_embedding_load_error", None)
         st.success("Knowledge base cleared.")
         st.rerun()
 
