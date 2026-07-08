@@ -16,6 +16,7 @@ from utils.document_intelligence import (
     document_statistics, detect_duplicate_chunks, detect_duplicate_files,
     knowledge_base_health_score,
 )
+from utils.embeddings import EMBEDDING_MODEL_NAME
 
 
 def render_document_explorer(chunks: List[Document], upload_dir: str) -> None:
@@ -122,7 +123,7 @@ def render_kb_health(vectorstore, bm25_index, chunks: List[Document], index_dir:
     bm25_avgdl = getattr(bm25_index, "avgdl", None) if bm25_index else None
 
     c1, c2, c3 = st.columns(3)
-    c1.metric("Embedding Model", "text-embedding-3-small")
+    c1.metric("Embedding Model", EMBEDDING_MODEL_NAME)
     c2.metric("Embedding Count", num_chunks)
     c3.metric("Index Size on Disk", f"{index_size_bytes / 1024:.1f} KB")
 

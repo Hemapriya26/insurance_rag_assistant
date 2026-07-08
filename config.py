@@ -34,6 +34,17 @@ class MemoryConfig:
 
 
 @dataclass(frozen=True)
+class EmbeddingConfig:
+    # Phase 6 — local HuggingFace Sentence-Transformer embeddings.
+    # Runs 100% locally (no OpenAI API calls), avoiding OpenAI embedding
+    # quota/billing errors. Only the embedding provider changed here — the
+    # LLM providers (OpenAI / Groq / NVIDIA NIM) in model_router.py are
+    # completely unaffected and continue to be used for generation.
+    provider: str = "huggingface-local"
+    model_name: str = "sentence-transformers/all-MiniLM-L6-v2"
+
+
+@dataclass(frozen=True)
 class AppConfig:
     app_name: str = "Insurance Policy RAG Assistant"
     version: str = "3.0.0"
@@ -42,6 +53,7 @@ class AppConfig:
     retrieval: RetrievalConfig = field(default_factory=RetrievalConfig)
     security: SecurityConfig = field(default_factory=SecurityConfig)
     memory: MemoryConfig = field(default_factory=MemoryConfig)
+    embedding: EmbeddingConfig = field(default_factory=EmbeddingConfig)
 
 
 CONFIG = AppConfig()

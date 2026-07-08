@@ -1,6 +1,10 @@
 """
 vectorstore.py
 Builds, persists, and loads the FAISS vector index for retrieval.
+
+Phase 6: embeddings now come from utils.embeddings.get_embedding_model(),
+which uses a local HuggingFace Sentence-Transformer model instead of
+OpenAIEmbeddings. This module's FAISS logic is otherwise unchanged.
 """
 
 import os
@@ -24,15 +28,8 @@ def build_vectorstore(chunks: List[Document], persist_dir: str = INDEX_DIR) -> F
 
 
 def load_vectorstore(persist_dir: str = INDEX_DIR) -> Optional[FAISS]:
-    """Load a previously persisted FAISS index, if one exists.
-
-    Checks for the actual FAISS index files rather than just a non-empty
-    directory, since the directory legitimately contains only a .gitkeep
-    placeholder on a fresh deploy (before anyone has built a knowledge base).
-    """
-    index_file = os.path.join(persist_dir, "index.faiss")
-    pkl_file = os.path.join(persist_dir, "index.pkl")
-    if not (os.path.exists(index_file) and os.path.exists(pkl_file)):
+    """Load a previously persisted FAISS index, if one exists."""
+    if not os.path.exists(persist_dir) or not os.listdir(persist_dir):
         return None
     embeddings = get_embedding_model()
     return FAISS.load_local(

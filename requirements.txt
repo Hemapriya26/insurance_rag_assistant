@@ -6,13 +6,15 @@ langchain-text-splitters
 langchain-openai
 langchain-groq
 openai
+langchain-huggingface
+huggingface-hub
 faiss-cpu
+rank-bm25
 pypdf
+fpdf
 python-dotenv
 tiktoken
 langsmith
-fpdf2
-rank-bm25
 torch
 transformers
 sentence-transformers

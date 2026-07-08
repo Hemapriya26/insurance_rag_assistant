@@ -32,13 +32,14 @@ from utils.tracing import is_tracing_enabled
 from utils.model_router import stream_llm, PROVIDER_MODELS
 from utils.memory import get_or_create_memory
 from utils.security import validate_uploads, sanitize_query, safe_error_message
+from utils.embeddings import EMBEDDING_MODEL_NAME, EmbeddingModelUnavailableError
 from utils.evaluation import evaluate_response
 from utils.export_utils import export_as_markdown, export_as_pdf, export_as_json
 from utils.suggestions import generate_suggestions
 from utils import conversation_store
 from utils.ui_components import (
-    render_chat_message, render_typing_indicator, render_answer_meta,render_footer, render_sources_expander,
-    render_header_banner, render_timestamp,
+    render_chat_message, render_typing_indicator, render_answer_meta,
+    render_header_banner, render_timestamp,render_footer, render_sources_expander,
     render_message_actions, render_suggested_questions,
 )
 
@@ -56,7 +57,14 @@ st.set_page_config(
 if "messages" not in st.session_state:
     st.session_state.messages = []
 if "vectorstore" not in st.session_state:
-    st.session_state.vectorstore = load_vectorstore()
+    try:
+        st.session_state.vectorstore = load_vectorstore()
+    except EmbeddingModelUnavailableError as exc:
+        # Don't crash the whole app on startup if a previously-built index
+        # can't be loaded (e.g. first-time model download failed) — fall
+        # back to "no KB loaded" and let the user rebuild from the sidebar.
+        st.session_state.vectorstore = None
+        st.session_state._embedding_load_error = str(exc)
 if "theme" not in st.session_state:
     st.session_state.theme = "light"
 if "query_log" not in st.session_state:
@@ -113,6 +121,9 @@ render_header_banner(
     "🛡️ Insurance Policy RAG Assistant",
     "Document-grounded answers for CMCHIS · PM-JAY · ESIC · CGHS · Private Insurance",
 )
+
+if st.session_state.get("_embedding_load_error"):
+    st.error(st.session_state._embedding_load_error)
 
 # ---------------------------------------------------------------------------
 # Background streaming worker — MUST NOT touch st.session_state or st.* calls.
@@ -275,6 +286,12 @@ with st.sidebar:
                     time.sleep(0.3)
                     progress.empty()
                     st.success(f"Knowledge base built from {len(chunks)} chunks across {len(paths)} document(s).")
+                except EmbeddingModelUnavailableError as exc:
+                    # Clean, specific message for local embedding-model load
+                    # failures (e.g. no internet for first-time download) —
+                    # shown as-is rather than the generic safe_error_message.
+                    progress.empty()
+                    st.error(str(exc))
                 except Exception as exc:
                     st.error(safe_error_message(exc))
 
@@ -307,7 +324,7 @@ with st.sidebar:
         groundedness_display = "🟢 Grounded" if last_msg.get("grounded", True) else "🟡 Review"
     st.markdown(
         f"**Knowledge Base Status:** {kb_status}  \n"
-        f"**Embedding Model:** text-embedding-3-small  \n"
+        f"**Embedding Model:** {EMBEDDING_MODEL_NAME}  \n"
         f"**LLM Provider:** {provider}  \n"
         f"**Last Response Time:** {total_response_time}s  \n"
         f"**Conversation Turns:** {len(memory.turns)}  \n"
@@ -593,7 +610,7 @@ with tab_settings:
     st.caption("LLM Provider, Theme, and Retrieval Settings are controlled live in the sidebar — shown here read-only for reference.")
     st.markdown(
         f"**LLM Provider:** {provider}  \n"
-        f"**Embedding Model:** text-embedding-3-small  \n"
+        f"**Embedding Model:** {EMBEDDING_MODEL_NAME}  \n"
         f"**Theme:** {st.session_state.theme.title()}  \n"
         f"**Top-K:** {top_k}  \n"
         f"**LangSmith Tracing:** {'Enabled' if is_tracing_enabled() else 'Disabled'}  \n"
