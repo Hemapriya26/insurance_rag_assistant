@@ -144,11 +144,11 @@ render_header_banner(
 
 if st.session_state.get("_embedding_load_error"):
     st.error(st.session_state._embedding_load_error)
-if st.session_state.get("_index_incompatible_warning"):
-    st.warning(
-        "⚠️ " + st.session_state._index_incompatible_warning +
-        "\n\n_(The incompatible index files have already been cleared automatically.)_"
-    )
+# Note: an incompatible/stale index (_index_incompatible_warning) is handled
+# silently — the stale files are auto-cleared at startup and the event is
+# logged to logs/app.log, but no banner is shown to the user. The app simply
+# falls back to the normal "no KB loaded yet" welcome screen, exactly as it
+# would look on a genuine first run.
 
 # ---------------------------------------------------------------------------
 # Background streaming worker — MUST NOT touch st.session_state or st.* calls.
