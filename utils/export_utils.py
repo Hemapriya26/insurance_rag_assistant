@@ -4,7 +4,6 @@ Phase 2.5 — export the current chat session as Markdown or PDF.
 No backend/RAG logic touched; operates purely on st.session_state.messages.
 """
 
-from io import BytesIO
 from typing import List, Dict, Any
 
 
@@ -52,9 +51,13 @@ def export_as_pdf(messages: List[Dict[str, Any]]) -> bytes:
             pdf.multi_cell(0, 6, meta)
         pdf.ln(3)
 
-    buffer = BytesIO()
-    pdf.output(buffer)
-    return buffer.getvalue()
+    # fpdf2's output(name=...) treats a non-empty `name` as a filesystem path
+    # and opens it with open(name, 'wb') — passing a BytesIO there fails
+    # (works accidentally on some local fpdf2 versions, but not on Streamlit
+    # Cloud's). Calling output() with no arguments returns the PDF content
+    # directly as a bytearray, with no disk write involved.
+    pdf_bytes = pdf.output()
+    return bytes(pdf_bytes)
 
 
 def export_as_json(messages: List[Dict[str, Any]]) -> str:
