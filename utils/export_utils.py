@@ -51,13 +51,18 @@ def export_as_pdf(messages: List[Dict[str, Any]]) -> bytes:
             pdf.multi_cell(0, 6, meta)
         pdf.ln(3)
 
-    # fpdf2's output(name=...) treats a non-empty `name` as a filesystem path
-    # and opens it with open(name, 'wb') — passing a BytesIO there fails
-    # (works accidentally on some local fpdf2 versions, but not on Streamlit
-    # Cloud's). Calling output() with no arguments returns the PDF content
-    # directly as a bytearray, with no disk write involved.
-    pdf_bytes = pdf.output()
-    return bytes(pdf_bytes)
+    # Handle both PDF libraries that may be resolved as `fpdf` at import time:
+    #   - legacy PyFPDF 1.7.2: output() with no args returns a plain `str`
+    #     (Latin-1 encoded text), which must be .encode('latin-1') to get bytes.
+    #   - fpdf2 (modern, maintained fork): output() with no args returns a
+    #     `bytearray` directly — no disk write, no encoding needed.
+    # Previously this assumed fpdf2 unconditionally and called bytes() on a
+    # str, which raises "TypeError: string argument without an encoding" on
+    # environments that resolved the legacy `fpdf` package instead.
+    raw = pdf.output(dest="S")
+    if isinstance(raw, str):
+        return raw.encode("latin-1")
+    return bytes(raw)
 
 
 def export_as_json(messages: List[Dict[str, Any]]) -> str:
